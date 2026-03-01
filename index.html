@@ -1,9 +1,585 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8" />
-		<title>清风挽明月o</title>
-	</head>
-	<body>
-	</body>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="星空钢琴 - 优雅的数字钢琴体验">
+    <meta name="format-detection" content="telephone=no">
+    <title>星空钢琴 - 艺术钢琴键盘</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-image: url('https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/super_tool/5f91ea4fa74c4f548a665047d557982e~tplv-a9rns2rl98-image.image?lk3s=8e244e95&rcl=202603012148051DD5004F8FB69197F005&rrcfp=f06b921b&x-expires=1774964929&x-signature=li42Av%2BhNpuDugayiZ6SWtF8xpA%3D');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        * {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .white-key {
+            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 30%, #e2e8f0 100%);
+            border: 1px solid #cbd5e1;
+            border-radius: 0 0 12px 12px;
+            cursor: pointer;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 8px 0 0 rgba(0, 0, 0, 0.15),
+                0 4px 16px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
+                inset 0 -1px 0 0 rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .white-key::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.2) 100%);
+            border-radius: 0 0 6px 6px;
+        }
+        
+        .white-key:hover {
+            background: linear-gradient(145deg, #ffffff 0%, #fffbeb 30%, #fef3c7 100%);
+            transform: translateY(-2px);
+            box-shadow: 
+                0 12px 0 0 rgba(0, 0, 0, 0.15),
+                0 8px 24px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.8),
+                inset 0 -1px 0 0 rgba(0, 0, 0, 0.08);
+        }
+        
+        .white-key.active {
+            background: linear-gradient(145deg, #ffffff 0%, #fef3c7 30%, #fcd34d 100%);
+            transform: translateY(4px);
+            box-shadow: 
+                0 4px 0 0 rgba(0, 0, 0, 0.15),
+                0 2px 8px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.4),
+                inset 0 -1px 0 0 rgba(0, 0, 0, 0.12);
+        }
+        
+
+        
+        .note-display {
+            background: rgba(255, 255, 255, 0.95);
+            color: #1e293b;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            display: inline-block;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .note-display.show {
+            opacity: 1;
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
+        }
+        
+        .keyboard-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 竖屏提示样式 */
+        .orientation-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .orientation-overlay.show {
+            display: flex;
+        }
+        
+        .orientation-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            animation: rotate 2s infinite ease-in-out;
+        }
+        
+        @keyframes rotate {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(90deg); }
+        }
+        
+        .orientation-text {
+            font-size: 24px;
+            color: white;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .orientation-subtext {
+            font-size: 16px;
+            color: #ccc;
+        }
+        
+        /* 响应式设计 - 手机竖屏优化 */
+        @media (max-width: 480px) and (orientation: portrait) {
+            .white-key {
+                min-height: 80px;
+                max-height: 100px;
+            }
+            
+            .keyboard-container {
+                padding: 8px;
+                margin: 0 -16px;
+                border-radius: 0;
+                width: calc(100% + 32px);
+            }
+            
+            .note-display {
+                font-size: 18px;
+                padding: 8px 16px;
+                min-width: 70px;
+                margin-bottom: 16px;
+            }
+            
+            .key-info {
+                font-size: 10px;
+                padding: 4px 8px;
+                margin: 2px;
+            }
+            
+            /* 优化键盘容器的高度 */
+            .relative.w-full.max-w-6xl.aspect-\[\16\/3\].overflow-x-auto {
+                aspect-ratio: 16/4;
+                max-height: 200px;
+            }
+            
+            /* 优化标题大小 */
+            .text-5xl.md\\:text-6xl.font-bold.mb-3.text-white.drop-shadow-lg.tracking-tight {
+                font-size: 2.5rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .text-xl.text-gray-200.drop-shadow-md.font-light {
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) and (orientation: landscape) {
+            .orientation-overlay {
+                display: flex;
+            }
+            
+            /* 横屏时隐藏主要内容 */
+            .text-center.mb-8,
+            .init-btn,
+            .note-display,
+            .relative.w-full.max-w-6xl.aspect-\[\16\/3\].overflow-x-auto,
+            .mt-8.text-center {
+                display: none;
+            }
+        }
+        
+        /* 竖屏时隐藏所有钢琴相关内容 */
+        .portrait-mode .text-center.mb-8,
+        .portrait-mode #init-btn,
+        .portrait-mode #note-display,
+        .portrait-mode .relative.w-full.max-w-6xl.aspect-\[\16\/3\].overflow-x-auto,
+        .portrait-mode .mt-8.text-center {
+            display: none !important;
+        }
+        
+
+        
+
+        
+        .init-btn {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            color: #1e293b;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .init-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.6s;
+        }
+        
+        .init-btn:hover::before {
+            left: 100%;
+        }
+        
+        .init-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
+        }
+        
+        .init-btn:disabled {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 8px 32px rgba(16, 185, 129, 0.4);
+        }
+        
+        .key-info {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        
+        .key-info:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+    <!-- 横屏提示 -->
+    <div id="orientation-overlay" class="orientation-overlay">
+        <div class="orientation-icon">📱</div>
+        <div class="orientation-text">请将手机横过来使用</div>
+        <div class="orientation-subtext">横屏模式下钢琴键盘更大更好用</div>
+    </div>
+    <div class="text-center mb-8">
+        <h1 class="text-5xl md:text-6xl font-bold mb-3 text-white drop-shadow-lg tracking-tight">现代钢琴</h1>
+        <p class="text-xl text-gray-200 drop-shadow-md font-light">优雅的数字钢琴体验</p>
+    </div>
+    
+    <!-- 初始化按钮 -->
+    <button id="init-btn" class="init-btn mb-6">
+        初始化音频系统
+    </button>
+    
+    <!-- 音符显示 -->
+    <div id="note-display" class="note-display">C</div>
+    
+    <!-- 键盘 -->
+    <div class="relative w-full max-w-6xl aspect-[16/3] overflow-x-auto">
+        <div class="keyboard-container w-full">
+            <div id="white-keys" class="relative w-full h-full flex gap-0.5">
+                <!-- 白键将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- 键盘按键提示 -->
+    <div class="mt-8 text-center">
+        <p class="text-white mb-4 font-semibold drop-shadow-md">键盘按键映射（所有琴键都有对应按键）：</p>
+        <div class="flex flex-wrap justify-center gap-2">
+            <div class="key-info bg-white/20 text-white backdrop-blur-sm">F-G-A-B-C-D-E: A-J</div>
+            <div class="key-info bg-white/20 text-white backdrop-blur-sm">F-G-A-B-C-D-E: Z-M</div>
+            <div class="key-info bg-white/20 text-white backdrop-blur-sm">F-G: K, L</div>
+            <div class="key-info bg-white/20 text-white backdrop-blur-sm">A-B-C-D-E: Y-P</div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let audioContext;
+        let initialized = false;
+        const keyMapping = {};
+        
+        // 完整的钢琴键盘音符数据（重新排列的白键）
+        const notes = [
+            // 小字组 - 重新排列的音符顺序
+            { name: 'F3', frequency: 174.61, type: 'white', key: 'z' },
+            { name: 'G3', frequency: 196.00, type: 'white', key: 'x' },
+            { name: 'A3', frequency: 220.00, type: 'white', key: 'c' },
+            { name: 'B3', frequency: 246.94, type: 'white', key: 'v' },
+            { name: 'C4', frequency: 261.63, type: 'white', key: 'b' },
+            { name: 'D4', frequency: 293.66, type: 'white', key: 'n' },
+            { name: 'E4', frequency: 329.63, type: 'white', key: 'm' },
+            
+            // 小字一组（中央C区域）
+            { name: 'F4', frequency: 349.23, type: 'white', key: 'a' },
+            { name: 'G4', frequency: 392.00, type: 'white', key: 's' },
+            { name: 'A4', frequency: 440.00, type: 'white', key: 'd' },
+            { name: 'B4', frequency: 493.88, type: 'white', key: 'f' },
+            { name: 'C5', frequency: 523.25, type: 'white', key: 'g' },
+            { name: 'D5', frequency: 587.33, type: 'white', key: 'h' },
+            { name: 'E5', frequency: 659.25, type: 'white', key: 'j' },
+            
+            // 小字二组
+            { name: 'F5', frequency: 698.46, type: 'white', key: 'k' },
+            { name: 'G5', frequency: 783.99, type: 'white', key: 'l' },
+            { name: 'A5', frequency: 880.00, type: 'white', key: 'y' },
+            { name: 'B5', frequency: 987.77, type: 'white', key: 'u' },
+            { name: 'C6', frequency: 1046.50, type: 'white', key: 'i' },
+            
+            // 小字三组
+            { name: 'D6', frequency: 1174.7, type: 'white', key: 'o' },
+            { name: 'E6', frequency: 1318.5, type: 'white', key: 'p' }
+        ];
+        
+        // DOM元素
+        const whiteKeys = document.getElementById('white-keys');
+        const noteDisplay = document.getElementById('note-display');
+        const initBtn = document.getElementById('init-btn');
+        const orientationOverlay = document.getElementById('orientation-overlay');
+        
+        // 方向检测函数
+        function checkOrientation() {
+            const isMobile = window.innerWidth <= 768;
+            const isLandscape = window.innerWidth > window.innerHeight;
+            
+            if (isMobile && !isLandscape) {
+                // 手机竖屏：显示提示，隐藏钢琴
+                orientationOverlay.classList.add('show');
+                document.body.classList.add('portrait-mode');
+            } else {
+                // 手机横屏或桌面：隐藏提示，显示钢琴
+                orientationOverlay.classList.remove('show');
+                document.body.classList.remove('portrait-mode');
+            }
+        }
+        
+        // 初始化函数
+        function initialize() {
+            try {
+                // 创建音频上下文
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                initialized = true;
+                
+                console.log('音频系统初始化成功:', audioContext);
+                
+                // 启用所有交互
+                initBtn.disabled = true;
+                initBtn.textContent = '已初始化';
+                
+                // 显示成功消息
+                noteDisplay.textContent = '音频系统已初始化';
+                noteDisplay.classList.add('show');
+                setTimeout(() => {
+                    noteDisplay.classList.remove('show');
+                }, 2000);
+                
+            } catch (error) {
+                console.error('初始化失败:', error);
+                alert('音频系统初始化失败: ' + error.message);
+            }
+        }
+        
+        // 播放音符
+        function playNote(noteData) {
+            if (!initialized) {
+                alert('请先点击"初始化音频"按钮');
+                return;
+            }
+            
+            try {
+                // 如果音频上下文被挂起，恢复它
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+                
+                console.log('播放音符:', noteData.name, noteData.frequency);
+                
+                // 创建音频节点
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                // 设置振荡器
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(noteData.frequency, audioContext.currentTime);
+                
+                // 设置音量
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.01);
+                gainNode.gain.linearRampToValueAtTime(0.3, audioContext.currentTime + 0.3);
+                gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 1.0);
+                
+                // 连接节点
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                // 播放音符
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 1.0);
+                
+                // 显示音符
+                noteDisplay.textContent = noteData.name;
+                noteDisplay.classList.add('show');
+                
+                setTimeout(() => {
+                    noteDisplay.classList.remove('show');
+                }, 500);
+                
+                // 显示当前音符和键盘按键
+                const displayText = noteData.key ? `${noteData.name} (${noteData.key.toUpperCase()})` : noteData.name;
+                noteDisplay.textContent = displayText;
+                noteDisplay.classList.add('show');
+                
+                setTimeout(() => {
+                    noteDisplay.classList.remove('show');
+                }, 800);
+                
+            } catch (error) {
+                console.error('播放音符失败:', error);
+                noteDisplay.textContent = '播放错误';
+                noteDisplay.classList.add('show');
+                setTimeout(() => {
+                    noteDisplay.classList.remove('show');
+                }, 1000);
+            }
+        }
+        
+        // 创建琴键
+        function createKeys() {
+            let whiteKeyIndex = 0;
+            
+            notes.forEach((note, index) => {
+                const key = document.createElement('div');
+                
+                if (note.type === 'white') {
+                    key.className = 'white-key flex-1 relative flex flex-col items-center justify-end pb-4';
+                    
+                    // 白键内容
+                    let keyContent = `
+                        <span class="text-lg font-semibold text-gray-800 z-10 relative">${note.name.replace(/\d/, '')}</span>
+                        <span class="text-xs text-gray-600 mt-1 z-10 relative">${note.name}</span>
+                    `;
+                    
+                    key.innerHTML = keyContent;
+                    
+                    // 添加到白键容器
+                    whiteKeys.appendChild(key);
+                    whiteKeyIndex++;
+                }
+                
+                // 添加事件监听
+                key.addEventListener('mousedown', () => {
+                    key.classList.add('active');
+                    playNote(note);
+                });
+                
+                key.addEventListener('mouseup', () => {
+                    key.classList.remove('active');
+                });
+                
+                key.addEventListener('mouseleave', () => {
+                    key.classList.remove('active');
+                });
+                
+                // 存储音符数据到DOM元素
+                key.dataset.note = note.name;
+                key.dataset.frequency = note.frequency;
+                
+                // 建立键盘映射
+                if (note.key) {
+                    keyMapping[note.key] = {
+                        note: note,
+                        element: key
+                    };
+                }
+            });
+            
+            console.log('键盘映射:', keyMapping);
+            console.log('琴键创建完成，共', notes.length, '个音符');
+        }
+        
+        // 键盘事件
+        document.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (keyMapping[key] && !e.repeat) {
+                console.log('键盘按键:', key, '对应音符:', keyMapping[key].note.name);
+                
+                // 播放音符
+                playNote(keyMapping[key].note);
+                
+                // 添加激活状态到对应的DOM元素
+                if (keyMapping[key].element) {
+                    keyMapping[key].element.classList.add('active');
+                }
+            }
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            const key = e.key.toLowerCase();
+            if (keyMapping[key] && keyMapping[key].element) {
+                // 移除激活状态
+                keyMapping[key].element.classList.remove('active');
+            }
+        });
+        
+        // 初始化按钮事件
+        initBtn.addEventListener('click', initialize);
+        
+        // 页面加载完成后创建琴键
+        document.addEventListener('DOMContentLoaded', () => {
+            createKeys();
+            checkOrientation(); // 初始检查方向
+            console.log('页面加载完成');
+        });
+        
+        // 监听方向变化
+        window.addEventListener('resize', checkOrientation);
+        window.addEventListener('orientationchange', checkOrientation);
+    </script>
+</body>
 </html>
